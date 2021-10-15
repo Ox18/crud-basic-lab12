@@ -28,12 +28,12 @@
 
         public function addSuccess($data){
             $this->setData($data);
-            $this->setError(true);
+            $this->setError(false);
             $this->setMessage("Success");
         }
 
         public function addError($message){
-            $this->setError(false);
+            $this->setError(true);
             $this->setMessage($message);
         }
 
