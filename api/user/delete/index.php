@@ -1,7 +1,6 @@
 <?php
 
     include "../../../utils/Response.php";
-    include "../../../entity/Usuario.php";
     include "../../../utils/UserValues.php";
 
     require_once("../../../model/conexion.php");
@@ -13,16 +12,17 @@
     try {
 
         $id = $_GET['id'];
-        $sql = "DELETE FROM usuaio WHERE id_usuaio = '$id'";
-        $query = $pdo->query($sql);
-        $count = $query->rowCount();
+ 
+        $query = $pdo->prepare($QUERY_UPDATE);
+        $query->bindParam(":id_usuaio", $id);
 
-        if($count == 0){
-            $response->setMessage("No se elimino ningun usuario");
+        $query->execute();
+        
+        if($query->rowCount() == 0){
+            $response->setMessage($RESPONSE_DELETE_SUCCESS);
         }else{
-            $response->setMessage("Se elimino al usuario");
+            $response->setMessage($RESPONSE_DELETE_ERROR);
         }
-        echo "Records were deleted successfully.";
      } catch (PDOException $e) {
         $response->addError($e->getMessage());
      }

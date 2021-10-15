@@ -12,11 +12,12 @@
 
     try{
     
-        $result = mysqli_query($conn, $QUERY_SELECT_ALL);
+        $query = $pdo->query($QUERY_SELECT_ALL);
+        $rows = $query->fetchAll();
 
         $usuarios = array();
 
-        while($row = mysqli_fetch_array($result)){
+        foreach($rows as $row){
             $id = $row['id_usuaio'];
             $nombre = $row['nombre'];
             $correo = $row['correo'];
@@ -24,18 +25,20 @@
             $direccion = $row['direccion'];
             $rol = $row['rol'];
 
-            $usuario = new Usuario($id, $nombre, $correo, $password, $direccion, $rol);
-
-            // push in array
+            $usuario = new Usuario($id, $nombre, $correo, $password, $direccion, $rol);            
             array_push($usuarios, $usuario->toObject());
         }
-        $response->addSuccess($usuarios);
-    
-    }catch(Exception $e){
+
+        if(count($usuarios) > 0){
+            $response->addSuccess($usuarios,$RESPONSE_SELECT_ALL_SUCCESS);
+        }else{
+            $response->addError($RESPONSE_SELECT_ALL_SUCCESS_EMPTY);
+        }
+    }catch(PDOException $e){
         $response->addError($e->getMessage());
 
     }finally{
-        mysqli_close($conn);
+        unset($pdo);
     }
 
     echo json_encode($response->getResponse());

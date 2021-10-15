@@ -7,34 +7,40 @@
     require_once("../../model/conexion.php");
 
     header('Content-Type: application/json; charset=utf-8');
-
+    
     $response = new Response();
     
         try{
             $id = $_GET['id'];
-            $result = mysqli_query($conn, "SELECT * FROM usuaio WHERE id_usuaio = '$id'");
     
-    
-            while($row = mysqli_fetch_array($result)){
-                $id = $row['id_usuaio'];
+            $query = $pdo->query($QUERY_SELECT);
+            $query->bindParam(":id", $id);
+            $rows = $query->fetchAll(PDO::FETCH_ASSOC);
+
+            $n = 0;
+
+            foreach($rows as $row){
+                $id = $row['id'];
                 $nombre = $row['nombre'];
                 $correo = $row['correo'];
                 $password = $row['password'];
                 $direccion = $row['direccion'];
                 $rol = $row['rol'];
-    
-                $usuario = new Usuario($id, $nombre, $correo, $password, $direccion, $rol);
-    
-                // push in array
+                $usuario = new Usuario($id, $nombre, $correo, $password, $direccion, $rol);            
                 $response->setData($usuario->toObject());
-                $response->setMessage("success");
+            }
+            if($n == 0){
+                $response->addSuccess($RESPONSE_SELECT_EMPTY);
+            }
+            else{
+                $response->setMessage($RESPONSE_SELECT_SUCCESS);
             }
         
         }catch(Exception $e){
             $response->addError($e->getMessage());
     
         }finally{
-            mysqli_close($conn);
+            unset($pdo);
         }
 
 

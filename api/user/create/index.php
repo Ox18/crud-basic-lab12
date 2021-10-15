@@ -1,12 +1,9 @@
 <?php
 
     include "../../../utils/Response.php";
-    include "../../../entity/Usuario.php";
     include "../../../utils/UserValues.php";
 
     require_once("../../../model/conexion.php");
-
-    // Takes raw data from the request
 
     header('Content-Type: application/json; charset=utf-8');
 
@@ -20,18 +17,28 @@
         $direccion = $body->direccion;
         $rol = $body->rol;
 
-        $sql = "INSERT INTO usuaio (nombre, correo, password, direccion, rol) VALUES ('$nombre', '$correo', '$password', '$direccion', '$rol')";
+        $query = $pdo->prepare($QUERY_UPDATE);
+        $query->bindParam(":nombre", $nombre);
+        $query->bindParam(":correo", $correo);
+        $query->bindParam(":password", $password);
+        $query->bindParam(":direccion", $direccion);
+        $query->bindParam(":rol", $rol);
 
-        $query = $pdo->prepare($sql);
         $query->execute();
 
-        $response->addSuccess("Usuario creado correctamente");  
+        if($query->rowCount() > 0){
+            $response->setMessage($RESPONSE_INSERT_SUCCESS);
+        }else{
+            $response->addError($RESPONSE_INSERT_ERROR);
+        }
     }
     catch(PDOException $e){
-        $response->addError("Error al crear el usuario");
+        $response->addError($e->getMessage());
+    }
+    finally{
+        unset($pdo);
     }
 
-    unset($pdo);
     echo json_encode($response->getResponse());
 
 ?>
